@@ -1,142 +1,36 @@
-import os
-from pathlib import Path
-from dotenv import load_dotenv
-from google import genai
+import ai_engine
+import file_manager
+import config
 
-# --- 1. Configuration & Environment ---
-SCRIPT_DIR = Path(__file__).resolve().parent
-ENV_PATH = SCRIPT_DIR / '.env'
-load_dotenv(dotenv_path=ENV_PATH)
-
-TARGET_DIR = os.getenv("TARGET_DIRECTORY", "your_path_directory")
-DRY_RUN = os.getenv("DRY_RUN", "True").lower() == "true"
-API_KEY = os.getenv("GOOGLE_API_KEY")
-
-REQUIRED_FOLDERS = [
-    "01_Personal_Documents", 
-    "02_Digital_Gallery", 
-    "03_Studies_and_Career", 
-    "04_Entertainment", 
-    "05_Device_Backups"
-]
-IGNORE_LIST = ["lost+found", ".trash", ".warden-manifest.md", ".env", ".git", ".DS_Store"]
-
-def initialize_warden():
-    """Initializes the modern Google AI Client"""
-    if not API_KEY:
-        print(f"❌ Error: GOOGLE_API_KEY not found in {ENV_PATH}")
-        return None
-    try:
-        client = genai.Client(api_key=API_KEY)
-        return client
-    except Exception as e:
-        print(f"❌ Connection Error: {e}")
-        return None
-
-def load_manifest(target_path):
-    """Loads the AI rules from the Markdown manifesto"""
-    manifest_path = Path(target_path) / ".warden-manifest.md"
-    if not manifest_path.exists():
-        print(f"⚠️  Manifest not found at {manifest_path}! Using default context.")
-        return "Standard file organization rules: 5-tier hierarchy, snake_case naming."
+def main():
+    print("🚀 Starting The-Lazy-Gorgeous-Warden...")
     
-    try:
-        with open(manifest_path, "r", encoding="utf-8") as f:
-            return f.read()
-    except Exception as e:
-        print(f"❌ Error reading manifest: {e}")
-        return "Standard rules."
+    # 1. Initialize Client
+    client = ai_engine.get_client()
+    if not client:
+        return
 
-def verify_ai_awareness(client, manifest_content):
-    """Handshake: Ensures the AI understood the manifesto using dynamic model discovery"""
-    print("🧠 Searching for available Gemini models...")
+    # 2. Load manifest rules
+    rules = file_manager.load_manifest()
     
-    try:
-        available_models = [m.name for m in client.models.list()]
+    # 3. Handshake and Audit
+    if ai_engine.verify_awareness(client, rules):
+        # Phase 4: Auto-create official folders
+        file_manager.ensure_hierarchy()
         
-        target_model = next((m for m in available_models if "gemini-1.5-flash" in m), 
-                       next((m for m in available_models if "gemini-1.0-pro" in m), 
-                       available_models[0] if available_models else None))
-
-        if not target_model:
-            print("❌ No models found for this API Key.")
-            return False
-
-        print(f"📡 Using model: {target_model}")
+        # Orphan detection
+        orphans = file_manager.audit_directory()
         
-        prompt = f"SYSTEM RULES:\n{manifest_content}\n\nTask: Summarize your mission in exactly one short sentence."
-        
-        response = client.models.generate_content(
-            model=target_model, 
-            contents=prompt
-        )
-        
-        if response.text:
-            print(f"🤖 Warden's Response: {response.text.strip()}")
-            return True
+        if orphans:
+            print(f"⚠️  ORPHANS DETECTED: {len(orphans)} item(s) outside the hierarchy.")
+            for orphan in orphans:
+                print(f"   - {orphan}")
         else:
-            print("⚠️ AI responded but the text body was empty.")
-            return False
-            
-    except Exception as e:
-        print(f"❌ AI Handshake Failed: {e}")
-        return False
-
-def audit_patrol(target_path):
-    """Main audit logic"""
-    print(f"\n🎩 THE-LAZY-GORGEOUS-WARDEN is patrolling: {target_path}")
-    print("-" * 60)
+            print("✅ Structure is compliant. All items are within the official hierarchy.")
     
-    path = Path(target_path)
-    if not path.exists():
-        print(f"❌ Error: Target directory '{target_path}' not found.")
-        return
-
-    orphans = []
-    found_items = 0
-
-    try:
-        for item in path.iterdir():
-            found_items += 1
-            if item.name in IGNORE_LIST:
-                continue
-            if item.name not in REQUIRED_FOLDERS:
-                orphans.append(item.name)
-    except PermissionError:
-        print("❌ Error: Permission denied to access the directory.")
-        return
-
-    if found_items == 0:
-        print("Empty lot. The target directory is completely empty.")
-    elif orphans:
-        print(f"⚠️  ORPHANS DETECTED: Found {len(orphans)} item(s) outside the hierarchy:")
-        for orphan in orphans:
-            print(f"   - {orphan}")
-    else:
-        print("✅ Structure is compliant. All items are within the official hierarchy.")
-
-    print("-" * 60)
-    # AJUSTE RUFF: Removido o 'f' pois não há variáveis no texto
-    status_msg = "SIMULATION (Dry Run)" if DRY_RUN else "LIVE MODE"
-    print(f"Status: {status_msg}")
+    status_label = "SIMULATION" if config.DRY_RUN else "LIVE MODE"
+    print(f"Final Status: {status_label}")
+    print("\n🏁 Patrol finished.")
 
 if __name__ == "__main__":
-    print("🚀 Starting the Warden...")
-    
-    client = initialize_warden()
-    if client:
-        # AJUSTE RUFF: Removido o 'f' da string abaixo
-        print("✨ AI Connection Established via .env")
-        
-        rules = load_manifest(TARGET_DIR)
-        print(f"📖 Rules loaded from directory: {TARGET_DIR}")
-        
-        if verify_ai_awareness(client, rules):
-            audit_patrol(TARGET_DIR)
-        else:
-            print("🛑 Warden failed the consciousness check. Check connection or API permissions.")
-    else:
-        print("🛑 Warden could not start. Check your .env configuration.")
-    
-    # AJUSTE RUFF: Removido o 'f' da string abaixo
-    print("\n🏁 Patrol finished.")
+    main()
