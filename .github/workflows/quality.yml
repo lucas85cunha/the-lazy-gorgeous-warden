@@ -30,7 +30,7 @@ jobs:
           if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
 
       - name: 🔍 Lint with Ruff
-        run: ruff check . --format=github # Formato especial para aparecer nas annotations do GitHub
+        run: ruff check . --output-format github
 
       - name: 🛡️ Security Scan with Bandit
         run: bandit -r . -f txt # Formato simples para log
