@@ -35,7 +35,8 @@ def audit_directory():
     path = Path(config.TARGET_DIR)
     
     orphans = []
-    if not path.exists(): return orphans
+    if not path.exists(): 
+        return orphans
 
     try:
         for item in path.iterdir():
