@@ -8,7 +8,6 @@ ENV_PATH = SCRIPT_DIR / '.env'
 load_dotenv(dotenv_path=ENV_PATH)
 
 # Environment Variables
-# Now it strictly pulls from .env. If not found, it defaults to None or a generic string.
 TARGET_DIR = os.getenv("TARGET_DIRECTORY")
 DRY_RUN = os.getenv("DRY_RUN", "True").lower() == "true"
 API_KEY = os.getenv("GOOGLE_API_KEY")
@@ -22,8 +21,8 @@ REQUIRED_FOLDERS = [
     "05_Device_Backups"
 ]
 
-IGNORE_LIST = ["lost+found", ".trash", ".warden-manifest.md", ".env", ".git", ".DS_Store"]
-
-# Simple validation to ensure the path was loaded
-if not TARGET_DIR:
-    print("⚠️  Warning: TARGET_DIRECTORY not set in .env file.")
+# Added Linux trash folders to ignore list
+IGNORE_LIST = [
+    "lost+found", ".trash", ".warden-manifest.md", 
+    ".env", ".git", ".DS_Store", ".Trash-1000", ".Trash-100"
+]
