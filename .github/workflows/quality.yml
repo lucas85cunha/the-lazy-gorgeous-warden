@@ -6,13 +6,17 @@ on:
   pull_request:
     branches: [ "main" ]
 
+# Força o uso do Node 24 para evitar warnings de 2026
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
 jobs:
   check-code:
     runs-on: ubuntu-latest
 
     steps:
       - name: 📥 Checkout Code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v4 # Verifique se há v5+ disponível
 
       - name: 🐍 Set up Python
         uses: actions/setup-python@v5
@@ -25,8 +29,8 @@ jobs:
           pip install ruff bandit
           if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
 
-      - name: 🔍 Lint with Ruff (Style & Quality)
-        run: ruff check .
+      - name: 🔍 Lint with Ruff
+        run: ruff check . --format=github # Formato especial para aparecer nas annotations do GitHub
 
-      - name: 🛡️ Security Scan with Bandit (DevSecOps)
-        run: bandit -r . -v
+      - name: 🛡️ Security Scan with Bandit
+        run: bandit -r . -f txt # Formato simples para log
