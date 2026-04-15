@@ -1,3 +1,7 @@
+![Python Version](https://img.shields.io/badge/python-3.12+-blue.svg)
+![AI Powered](https://img.shields.io/badge/AI-Powered%20by%20Gemini-orange.svg)
+![License](https://img.shields.io/badge/license-MIT-green.svg)
+
 # 🎩 the-lazy-gorgeous-warden
 
 A sophisticated, AI-powered file system auditor and organizer designed to manage large volumes of personal data with minimal manual effort.
@@ -28,3 +32,9 @@ The script enforces a 5-tier structure for personal data:
 3. Activate it: `source venv/bin/activate`.
 4. Install dependencies: `pip install -r requirements.txt`.
 5. Configure your `.env` file based on `.env.example`.
+
+## 🤖 Built with Gemini
+This project was architected and developed in collaboration with **Google Gemini**. From the initial directory structure design to the implementation of the modern 2026 `google-genai` SDK, the Warden is a result of an "AI-First" development workflow, focusing on clean code, security, and automation.
+
+---
+[Check out the repository here](https://github.com/lucas85cunha/the-lazy-gorgeous-warden)
