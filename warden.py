@@ -52,11 +52,8 @@ def verify_ai_awareness(client, manifest_content):
     print("🧠 Searching for available Gemini models...")
     
     try:
-        # Dynamic Discovery: Asks the API which models are allowed for this key
-        # This prevents 404 errors caused by region-specific naming
         available_models = [m.name for m in client.models.list()]
         
-        # Priority 1: Gemini 1.5 Flash | Priority 2: Gemini 1.0 Pro | Fallback: First available
         target_model = next((m for m in available_models if "gemini-1.5-flash" in m), 
                        next((m for m in available_models if "gemini-1.0-pro" in m), 
                        available_models[0] if available_models else None))
@@ -119,14 +116,17 @@ def audit_patrol(target_path):
         print("✅ Structure is compliant. All items are within the official hierarchy.")
 
     print("-" * 60)
-    print(f"Status: {'SIMULATION (Dry Run)' if DRY_RUN else 'LIVE MODE'}")
+    # AJUSTE RUFF: Removido o 'f' pois não há variáveis no texto
+    status_msg = "SIMULATION (Dry Run)" if DRY_RUN else "LIVE MODE"
+    print(f"Status: {status_msg}")
 
 if __name__ == "__main__":
     print("🚀 Starting the Warden...")
     
     client = initialize_warden()
     if client:
-        print(f"✨ AI Connection Established via .env")
+        # AJUSTE RUFF: Removido o 'f' da string abaixo
+        print("✨ AI Connection Established via .env")
         
         rules = load_manifest(TARGET_DIR)
         print(f"📖 Rules loaded from directory: {TARGET_DIR}")
@@ -138,4 +138,5 @@ if __name__ == "__main__":
     else:
         print("🛑 Warden could not start. Check your .env configuration.")
     
+    # AJUSTE RUFF: Removido o 'f' da string abaixo
     print("\n🏁 Patrol finished.")
