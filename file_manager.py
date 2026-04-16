@@ -7,7 +7,7 @@ def load_manifest():
     manifest_path = Path(config.TARGET_DIR) / ".warden-manifest.md"
     if not manifest_path.exists():
         print(f"⚠️  Manifest not found at {manifest_path}! Using default context.")
-        return "Standard file organization rules apply: 5-tier hierarchy, snake_case naming."
+        return "Standard file organization rules apply: 5-tier hierarchy, DevOps naming."
     return manifest_path.read_text(encoding="utf-8")
 
 def ensure_hierarchy():
@@ -31,16 +31,17 @@ def ensure_hierarchy():
                 except Exception as e:
                     print(f"❌ Failed to create {folder}: {e}")
 
-def is_snake_case(name):
+def is_valid_name(name):
     """
-    Checks if a name follows snake_case.
-    Allows: lowercase letters, numbers, underscores.
-    Ignores the leading dot for hidden files.
+    Checks if a name follows DevOps standards (snake_case, kebab-case, or SemVer).
+    Allows: letters (upper/lower), numbers, underscores, hyphens, and dots.
+    Ignores the file extension for validation.
     """
-    # Remove extension for validation
+    # Remove extension for validation (e.g., gets 'kali-linux-2025' from 'kali-linux-2025.iso')
     base_name = Path(name).stem
-    # Regex for snake_case
-    pattern = r'^[a-z0-9_]+$'
+    
+    # Regex updated: allows a-z, A-Z, 0-9, underscores (_), hyphens (-), and dots (.)
+    pattern = r'^[a-zA-Z0-9_\-\.]+$'
     return bool(re.match(pattern, base_name))
 
 def audit_directory():
@@ -70,7 +71,8 @@ def audit_directory():
                     if sub_item.name in config.IGNORE_LIST:
                         continue
                     
-                    if not is_snake_case(sub_item.name):
+                    # Updated to use the new valid naming rule
+                    if not is_valid_name(sub_item.name):
                         # Store relative path for better reporting
                         relative_path = sub_item.relative_to(path)
                         naming_violations.append(str(relative_path))
