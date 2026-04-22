@@ -8,4 +8,5 @@ __pycache__/
 
 # Project logs and reports
 *.log
+warden_audit.log*
 warden_audit_log.txt

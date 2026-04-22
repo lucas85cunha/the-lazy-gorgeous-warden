@@ -9,7 +9,7 @@ A sophisticated, AI-powered file system auditor and organizer designed to manage
 ## 🎯 Objective
 The primary goal of **the-lazy-gorgeous-warden** is to maintain a pristine and structured environment within high-capacity storage devices (e.g., 2TB HDDs). It acts as an automated "supervisor" that ensures every file adheres to a predefined organizational hierarchy, naming conventions, and security standards.
 
-By leveraging the **Gemini 1.5 Flash** model via API, the Warden doesn't just move files—it understands their context to help you decide where "orphaned" or misplaced data truly belongs.
+By leveraging the **Gemini 2.5 Flash** model via API, the Warden doesn't just move files—it understands their context to help you decide where "orphaned" or misplaced data truly belongs.
 
 ## 🛠️ Core Features
 * **Structure Enforcement:** Automatically audits the directory tree to ensure files are nested within the correct categories (01 to 05).
@@ -25,6 +25,26 @@ The script enforces a 5-tier structure for personal data:
 3.  `03_Studies_and_Career/` (Courses, E-books, Certifications)
 4.  `04_Entertainment/` (Music, Movies, Software Installers)
 5.  `05_Device_Backups/` (Backups from old devices and cloud exports)
+
+## 🏗️ Project Architecture
+
+The system follows a manifest-driven AI design, split into focused layers:
+
+| Module | Role |
+|--------|------|
+| **`warden.py`** | Orchestrator — boots the logger, initializes the AI client, and coordinates the full audit pipeline (handshake → hierarchy → audit → classification). |
+| **`config.py`** | Central configuration — loads `.env` credentials, defines the official folder hierarchy & ignore lists, and exposes structured logging (`RotatingFileHandler`, configurable `LOG_LEVEL`). |
+| **`ai_engine.py`** | AI engine — wraps all Gemini API interactions with automatic retry/backoff for quota errors (HTTP 429), in-memory model discovery cache, and prompt construction for classification and renaming. |
+| **`file_manager.py`** | File system layer — reads the Markdown manifest, enforces the 5-tier directory hierarchy, validates naming conventions via regex, and performs the recursive audit that feeds the AI engine. |
+| **`.warden-manifest.md`** | AI manifest (lives on the target storage) — predefined rules that guide the AI's decisions during classification and security auditing. |
+| **`.env`** | Runtime secrets — API key, target directory path, `DRY_RUN` toggle, and log level. Never committed to version control. |
+
+```
+warden.py          ← entry point
+  ├─ config.py     ← env vars, folders, logging
+  ├─ ai_engine.py  ← Gemini SDK (retry, cache, prompts)
+  └─ file_manager.py ← filesystem audit & manifest
+```
 
 ## 🚀 Setup
 1. Clone this repository.
